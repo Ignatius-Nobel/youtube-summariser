@@ -1,0 +1,49 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    {% block title %}
+    <title>Document</title>
+    {% endblock %}
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="h-20 bg-blue-500 w-full flex justify-between items-center">
+      <h1 class="text-2xl ml-8 font-bold">Audio Evaluator</h1>
+      <ul class="flex gap-6 mr-12 text-md font-semibold">
+        {% block navlinks %}
+        <!-- Navbar links -->
+        {% endblock %}
+      </ul>
+    </nav>
+    <!-- Hero content -->
+     <main class="flex-grow">
+      {% block hero %}{% endblock %}
+     </main>
+
+
+    <!-- Footer -->
+    <footer class="h-20 bg-blue-500 w-full flex items-center justify-around">
+        <div class="text-lg font-bold">
+            <h1>Audio Evaluator</h1>
+        </div>
+        <div>
+            <ul class="flex gap-8 mb-2">
+                <li><a class="hover:text-white" href="#">Home</a></li>
+                <li><a class="hover:text-white" href="#">About</a></li>
+                <li><a class="hover:text-white" href="#">Contact</a></li>
+            </ul>
+            <p class="font-semibold text-sm text-center">&#xa9; Copyright - 2024 </p>
+        </div>
+        <div>
+            <p class="italic">Made by Ignatius Nobel</p>
+        </div>
+    </footer>
+    {% block script %}
+
+    {% endblock %}
+  </body>
+</html>

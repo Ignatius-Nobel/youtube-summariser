@@ -1,0 +1,48 @@
+{% extends 'layout.html' %}
+{% load static %}
+<!-- Page title -->
+{% block title %}
+    <title>Home</title>
+{% endblock %}
+
+<!-- Navbar links -->
+{% block navlinks %}
+    <li><a class="hover:text-white" href="{% url 'home' %}">Home</a></li>
+    <li><a class="hover:text-white" href="#">Saved</a></li>
+    <li><a class="hover:text-white" href="#">Logout</a></li>
+{% endblock %}
+
+{% block hero %} 
+    <div class="w-1/2 my-16 mx-auto rounded-lg border p-8">
+        <p class="text-center text-xl font-semibold mb-5">Audio Evaluator</p>
+        <p class="mb-8 text-center">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ut natus, consequuntur id ex omnis repudiandae neque! Cum, obcaecati in consequatur nihil, optio est eligendi consequuntur expedita dolorum dicta voluptatum temporibus.</p>
+        <!-- Display error messages if link is invalid -->
+        <div id="link-error-message" class="flex justify-center text-red-600 mb-4">
+            {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>
+                        {{ message }}
+                    </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+
+        <form action="{% url 'get_result' %}" method="post">
+            {% csrf_token %}
+            <div id="link-input-container" >
+                <div class="flex justify-evenly gap-2 mb-5">
+                    <input name="links" id="link-input" class="border border-2 border-black rounded-md grow pl-2" type="url" placeholder="Enter the youtube link..." required>
+                    <button type="button" id="add-input" class="p-2 rounded-md bg-blue-500 text-white font-bold">Add</button>
+                </div>
+            </div>
+            <div class="flex justify-center">
+                <button type="submit" class="p-2 rounded-md bg-green-500 text-white font-semibold">Generate</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+{% block script%}
+    <script src="{% static 'index.js' %}"></script>
+{% endblock %}
