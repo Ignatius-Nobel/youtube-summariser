@@ -7,9 +7,10 @@
 
 <!-- Navbar links -->
 {% block navlinks %}
+    <li class="hover:text-white">Welcome! {{ user.username|title }}</li>
     <li><a class="hover:text-white" href="{% url 'home' %}">Home</a></li>
     <li><a class="hover:text-white" href="#">Saved</a></li>
-    <li><a class="hover:text-white" href="#">Logout</a></li>
+    <li><a class="hover:text-white" href="logout">Logout</a></li>
 {% endblock %}
 
 {% block hero %} 
