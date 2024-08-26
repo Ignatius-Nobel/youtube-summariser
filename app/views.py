@@ -97,3 +97,8 @@ def user_register(request):
 def user_logout(request):
     logout(request)
     return redirect('home')
+
+def saved_content(request):
+    generated_content = GeneratedContent.objects.filter(user=request.user)
+    # video_detail = VideoDetail.objects.filter(generated_content=generated_content)
+    return render(request,"saved.html",{'generated_content':generated_content})

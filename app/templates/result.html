@@ -5,6 +5,7 @@
 {% endblock %} 
 {% block navlinks %}
     <li><a class="hover:text-white" href="{% url 'home' %}">Home</a></li>
+    <li><a class="hover:text-white" href="#">Saved</a></li>
     <li><a class="hover:text-white" href="#">Logout</a></li>
 {% endblock %}
 {% block hero %}
@@ -38,15 +39,35 @@
                   <ul>
                     {% for video in video_detail %}
                     <li id="video-{{video.id}}" 
-                        class="flex flex-col shadow-md rounded-md p-4 m-5 cursor-pointer bg-white"
+                        class="flex flex-col shadow-md rounded-md p-4 py-8 m-5 cursor-pointer bg-white"
                         onclick="toggleContent('{{video.id}}')"
                     >
                         <strong>{{ video.title }}</strong><br />
                         Author: {{ video.author }}<br />
-                        <div id="content-{{video.id}}" class="hidden mt-2">
-                          Length: {{ video.length }} seconds<br />
-                          Description: {{ video.description }}<br />
-                          Published Date: {{ video.publish_date }}
+                        <div id="content-{{video.id}}" class="hidden mt-8">
+                          <div class="flex flex-start w-fit space-x-2 text-white font-semibold">
+
+                            <button id="transcript-button" type="button" class="border-b-0 rounded-t-lg py-2 px-6 bg-blue-500" onclick="event.stopPropagation();">Transcript</button>
+
+                            <button id="summary-button" type="button" class="py-2 px-6 rounded-t-lg bg-blue-500" onclick="event.stopPropagation();">Summary</button>
+
+                            <button id="blog-button" type="button" class="py-2 px-10 rounded-t-lg bg-blue-500" onclick="event.stopPropagation();">Blog</button>
+
+                          </div>
+                          <!-- Text content -->
+                          <div id="transcript-tab" class="border border-t-0 p-2 rounded-lg rounded-tl-none shadow-lg">
+                            Length: {{ video.length }} seconds<br />
+                            Description: {{ video.description }}<br />
+                            Published Date: {{ video.publish_date }}
+                          </div>
+                          <div class="hidden border border-t-0 p-2 rounded-lg rounded-tl-none shadow-lg" id="summary-tab">
+                            Description: {{ video.description }}<br />
+                            Published Date: {{ video.publish_date }}
+                          </div>
+                          <!-- Content for Blog -->
+                          <div class="hidden border p-2 rounded-lg rounded-tl-none shadow-lg" id="blog-tab">
+                            <p>Blog content goes here...</p>
+                          </div>
                         </div>
                     </li>
                     {% empty %}
