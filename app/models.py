@@ -15,8 +15,12 @@ class VideoDetail(models.Model):
     title = models.CharField(max_length=300)
     author = models.CharField(max_length=100)
     length = models.IntegerField()
-    description = models.TextField(null=True)
+    youtube_link = models.URLField()
+    blog = models.TextField()
+    transcript = models.TextField()
+    summary = models.TextField()
     publish_date = models.DateField("Published Date")
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
