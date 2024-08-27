@@ -3,3 +3,6 @@ yt-dlp
 groq
 python-dotenv
 openai
+markdown2
+beautifulsoup4
+xhtml2pdf

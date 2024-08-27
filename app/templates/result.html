@@ -38,21 +38,26 @@
 
   <!-- Display content -->
   <div class="w-8/12 mx-auto my-16 bg-gray-100 rounded-lg py-8 border border-1">
-    <h1 class="text-2xl my-4 font-bold ml-8">Generated Content</h1>
+    <h1 class="text-2xl my-4 font-bold ml-6">Generated Content</h1>
     <ul>
       {% for video in video_detail %}
       <li
         id="video-{{video.id}}"
-        class="flex flex-col shadow-md rounded-md p-4 py-8 m-5 cursor-pointer bg-white"
+        class="flex flex-col shadow-md rounded-md p-8 py-8 m-5 cursor-pointer bg-white"
         onclick="toggleContent('{{video.id}}')"
       >
-        <strong>{{ video.title }}</strong><br />
-        Author: {{ video.author }}<br />
+        <p class="text-xl font-bold">{{ video.title }}</p>
+        <p class="font-semibold">{{ video.author }}</p>
         <div
           id="content-{{video.id}}"
-          class="hidden mt-8"
+          class="hidden mt-2"
           onclick="event.stopPropagation()"
         >
+        <!-- Download Chat and Audio -->
+        <div class="flex justify-end mb-4">
+          <a href= "{% url 'download_chat_pdf' video.id %}" class="border bg-red-400 p-2 rounded-lg text-white">Download Chat</a>
+        </div>
+        <!-- Transcript, Summary and Blog -->
           <div class="flex flex-start w-fit space-x-2 text-white font-semibold">
             <button
               id="transcript-button-{{video.id}}"
@@ -93,14 +98,14 @@
           <!-- Transcript content -->
           <div
             id="transcript-tab-{{video.id}}"
-            class="border border-t-0 p-8 rounded-lg rounded-tl-none shadow-lg"
+            class="border p-8 rounded-lg rounded-tl-none shadow-lg"
           >
             <p class="text-2xl font-bold my-4">Transcript</p>
             {{ video.transcript }}
           </div>
           <!-- Summary content -->
           <div
-            class="hidden border border-t-0 p-8 rounded-lg rounded-tl-none shadow-lg"
+            class="hidden border p-8 rounded-lg rounded-tl-none shadow-lg"
             id="summary-tab-{{video.id}}"
           >
             <p class="text-2xl font-bold my-4">Summary</p>
@@ -127,8 +132,8 @@
               <span class="font-semibold">Length :</span> {{ video.length }} s
             </p>
             <p>
-              <span class="font-semibold">Published Date :</span> {{
-              video.publish_date }}
+              <span class="font-semibold">Published Date :</span>
+              {{video.publish_date }}
             </p>
             <p>
               <span class="font-semibold">Link :</span>

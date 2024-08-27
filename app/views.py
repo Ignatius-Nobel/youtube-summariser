@@ -11,6 +11,11 @@ import yt_dlp as youtube_dl
 from groq import Groq
 from dotenv import load_dotenv
 from openai import OpenAI
+from django.http import HttpResponse
+from .models import VideoDetail
+import markdown2
+from io import BytesIO
+from xhtml2pdf import pisa
 
 load_dotenv()
 groq_api = os.getenv('GROQ_API_KEY')
@@ -244,3 +249,32 @@ def saved_content(request):
     return render(request,"saved.html",{'generated_content':generated_content})
 
 
+def download_chat_pdf(request,video_id):
+    video = VideoDetail.objects.get(id=video_id)
+    title = video.title
+    summary = video.summary
+    transcript = video.transcript
+    blog = video.blog
+
+    # Data to be included in the PDF
+    story = ""
+    story = f"<h1 align='center' style=\"font-size:30px\" >{title}</h1>" + '\n\n\n\n' + "<h2 style=\"font-size:18px\"><u>Transcript</u></h2>" + '\n\n' + transcript + '\n\n\n' + "<h2 style=\"font-size:18px\"><u>Summary</u></h2>" + '\n\n' + summary + '\n\n\n' + "<h2 style=\"font-size:18px\"><u>Blog Article</u></h2>" + '\n\n' + blog + '\n\n\n\n'
+
+    # Markdown to HTML
+    html_text = markdown2.markdown(story)
+
+    # Create a BytesIO buffer to hold the PDF
+    buffer = BytesIO()
+
+    # Convert HTML to PDF using xhtml2pdf
+    pisa_status = pisa.CreatePDF(html_text, dest=buffer)
+
+    # Get PDF data from buffer
+    pdf = buffer.getvalue()
+    buffer.close()
+
+    # Create the HTTP response with PDF mime type
+    response = HttpResponse(pdf,content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{title}_Chat.pdf"'
+
+    return response
