@@ -103,7 +103,20 @@
           >
             <div class="flex justify-between items-center">
               <p class="text-2xl font-bold my-4">Transcript</p>
-              <a href="{% url 'transcript-audio' video.id %}" class="border p-2 bg-green-500 h-fit rounded-lg text-white font-semibold">Transcript Audio</a>
+              <div class="flex items-center gap-4">
+                <ion-icon
+                  id="copy-transcript-tab-{{video.id}}"
+                  class="text-blue-500 cursor-pointer"
+                  title="Copy"
+                  size="large"
+                  name="copy"
+                  onclick="copyContent('{{video.id}}', 'transcript-tab')"
+                ></ion-icon>
+                <span id="copied-message-transcript-tab-{{video.id}}" class="text-green-500 hidden">Copied!</span>
+                <a href="{% url 'transcript-audio' video.id %}" class="border p-2 bg-green-500 h-fit rounded-lg text-white font-semibold">Transcript Audio</a>
+              </div>
+              
+
             </div>
             <hr class="h-2 w-full">
             <github-md>{{ video.transcript }}</github-md>             
@@ -117,8 +130,20 @@
           >
           <div class="flex justify-between items-center">
             <p class="text-2xl font-bold my-4">Summary</p>
-            <a href="{% url 'download-audio' video.id %}" class="border p-2 bg-green-500 h-fit rounded-lg text-white font-semibold">Summary Audio</a>
-          </div>  
+            <div class="flex items-center gap-4">
+              <ion-icon 
+                id="copy-summary-tab-{{video.id}}" 
+                class="text-blue-500 cursor-pointer" 
+                title="Copy" 
+                size="large" 
+                name="copy"
+                onclick="copyContent('{{video.id}}', 'summary-tab')"
+              ></ion-icon>
+              <span id="copied-message-summary-tab-{{video.id}}" class="text-green-500 hidden">Copied!</span>
+              <a href="{% url 'download-audio' video.id %}" class="border p-2 bg-green-500 h-fit rounded-lg text-white font-semibold">Summary Audio</a>
+            </div>
+          </div>
+           
           <hr class="h-2 w-full">
             <github-md>{{video.summary}}</github-md>
           </div>
@@ -127,7 +152,22 @@
             class="hidden border p-8 rounded-lg rounded-tl-none shadow-lg bg-white"
             id="blog-tab-{{video.id}}"
           >
+          <div class="flex justify-between items-center">
             <p class="text-2xl font-bold my-4">Blog Article</p>
+            <div class="flex items-center gap-4">
+              <ion-icon 
+                id="copy-blog-tab-{{video.id}}" 
+                class="text-blue-500 cursor-pointer" 
+                title="Copy" 
+                size="large" 
+                name="copy"
+                onclick="copyContent('{{video.id}}', 'blog-tab')"
+              ></ion-icon>
+              <span id="copied-message-blog-tab-{{video.id}}" class="text-green-500 hidden">Copied!</span>
+            </div>
+          </div>
+          
+
             <hr class="h-2 w-full">
             <github-md>{{video.blog}}</github-md>
           </div>
@@ -182,7 +222,44 @@
     // Show the selected tab
     document.getElementById(`${content}-${id}`).classList.remove("hidden");
   }
+  function copyContent(videoId, tabId) {
+  // Select the content inside the specified tab
+  const contentToCopy = document.querySelector(`#${tabId}-${videoId} github-md`).innerText;
+
+  // Create a temporary textarea element to hold the text
+  const tempTextArea = document.createElement("textarea");
+  tempTextArea.value = contentToCopy;
+  document.body.appendChild(tempTextArea);
+
+  // Select the text inside the textarea
+  tempTextArea.select();
+  tempTextArea.setSelectionRange(0, 99999); // For mobile devices
+
+  // Copy the text to the clipboard
+  document.execCommand("copy");
+
+  // Remove the temporary textarea element
+  document.body.removeChild(tempTextArea);
+
+  // Find the icon and copied message elements
+  const copyIcon = document.querySelector(`#copy-${tabId}-${videoId}`);
+  const copiedMessage = document.querySelector(`#copied-message-${tabId}-${videoId}`);
+
+  // Hide the icon and show the "Copied!" message
+  copyIcon.classList.add("hidden");
+  copiedMessage.classList.remove("hidden");
+
+  // Revert back to original state after 3 seconds
+  setTimeout(() => {
+    copiedMessage.classList.add("hidden");
+    copyIcon.classList.remove("hidden");
+  }, 3000);
+}
+
+
 </script>
 <script src="https://cdn.jsdelivr.net/gh/MarketingPipeline/Markdown-Tag/markdown-tag-GitHub.js"></script>
 <script src="{% static 'result.js' %}"></script>
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 {% endblock %}
