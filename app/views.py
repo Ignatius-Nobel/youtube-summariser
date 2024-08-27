@@ -11,11 +11,12 @@ import yt_dlp as youtube_dl
 from groq import Groq
 from dotenv import load_dotenv
 from openai import OpenAI
-from django.http import HttpResponse
+from django.http import HttpResponse,StreamingHttpResponse
 from .models import VideoDetail
 import markdown2
 from io import BytesIO
 from xhtml2pdf import pisa
+from bs4 import BeautifulSoup
 
 load_dotenv()
 groq_api = os.getenv('GROQ_API_KEY')
@@ -278,3 +279,46 @@ def download_chat_pdf(request,video_id):
     response['Content-Disposition'] = f'attachment; filename="{title}_Chat.pdf"'
 
     return response
+
+def generate_audio(request,video_id):
+    client = OpenAI(api_key=openai_api)
+    video = VideoDetail.objects.get(id=video_id)
+    title = video.title
+    summary = video.summary
+    audio_file_path = f"{settings.MEDIA_ROOT}/summary_audio/{title}.mp3"
+    if os.path.exists(audio_file_path):
+        def file_iterator(file_path, chunk_size=8192):
+            with open(file_path, 'rb') as f:
+                while True:
+                    chunk = f.read(chunk_size)
+                    if not chunk:
+                        break
+                    yield chunk
+
+        response = StreamingHttpResponse(file_iterator(audio_file_path), content_type='audio/mpeg')
+        response['Content-Disposition'] = f'attachment; filename="{title}.mp3"'
+        return response
+    else:
+        # openai tts conversion
+        response = client.audio.speech.create(
+            model="tts-1-hd",
+            voice="alloy",
+            input=summary
+        )
+        response.stream_to_file(audio_file_path)
+        print("Audio saved!",audio_file_path)
+
+        if os.path.exists(audio_file_path):
+            def file_iterator(file_path, chunk_size=8192):
+                with open(file_path, 'rb') as f:
+                    while True:
+                        chunk = f.read(chunk_size)
+                        if not chunk:
+                            break
+                        yield chunk
+
+            response = StreamingHttpResponse(file_iterator(audio_file_path), content_type='audio/mpeg')
+            response['Content-Disposition'] = f'attachment; filename="{title}.mp3"'
+            return response
+        else:
+            return HttpResponse("Audio file not found", status=404)

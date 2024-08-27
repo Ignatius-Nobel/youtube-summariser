@@ -10,4 +10,5 @@ urlpatterns = [
     path('logout',views.user_logout,name='logout'),
     path('saved',views.saved_content,name='saved'),
     path('download-chat/<int:video_id>/', views.download_chat_pdf, name='download_chat_pdf'),
+    path('download-audio/<int:video_id>/', views.generate_audio, name='download-audio'),
 ]

@@ -55,7 +55,7 @@
         >
         <!-- Download Chat and Audio -->
         <div class="flex justify-end mb-4">
-          <a href= "{% url 'download_chat_pdf' video.id %}" class="border bg-red-400 p-2 rounded-lg text-white">Download Chat</a>
+          <a href= "{% url 'download_chat_pdf' video.id %}" class="border bg-red-400 p-2 rounded-lg text-white font-semibold">Download Chat</a>
         </div>
         <!-- Transcript, Summary and Blog -->
           <div class="flex flex-start w-fit space-x-2 text-white font-semibold">
@@ -108,7 +108,11 @@
             class="hidden border p-8 rounded-lg rounded-tl-none shadow-lg"
             id="summary-tab-{{video.id}}"
           >
+          <div class="flex justify-between items-center">
             <p class="text-2xl font-bold my-4">Summary</p>
+            <a href="{% url 'download-audio' video.id %}" class="border p-2 bg-green-500 h-fit rounded-lg text-white font-semibold">Download Audio</a>
+          </div>  
+
             <github-md>{{video.summary}}</github-md>
           </div>
           <!-- Content for Blog -->
