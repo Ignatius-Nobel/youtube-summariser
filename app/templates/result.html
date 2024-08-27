@@ -2,8 +2,8 @@
 <title>Result</title>
 {% endblock %} {% block navlinks %}
 <li><a class="hover:text-white" href="{% url 'home' %}">Home</a></li>
-<li><a class="hover:text-white" href="#">Saved</a></li>
-<li><a class="hover:text-white" href="#">Logout</a></li>
+<li><a class="hover:text-white" href="{% url 'saved' %}">Saved</a></li>
+<li><a class="hover:text-white" href="{% url 'logout' %}">Logout</a></li>
 {% endblock %} {% block hero %}
 <style>
   /* Hide scrollbar for Chrome, Safari and Opera */
@@ -120,6 +120,7 @@
             class="hidden border p-8 rounded-lg rounded-tl-none shadow-lg"
             id="blog-tab-{{video.id}}"
           >
+            <p class="text-2xl font-bold my-4">Blog</p>
             <github-md>{{video.blog}}</github-md>
           </div>
           <!-- Video Details -->

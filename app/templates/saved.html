@@ -7,17 +7,26 @@
 
 {% block navlinks %}
     <li><a class="hover:text-white" href="{% url 'home' %}">Home</a></li>
-    <li><a class="hover:text-white" href="logout">Logout</a></li>
+    <li><a class="hover:text-white" href="{% url 'logout' %}">Logout</a></li>
 {% endblock %}
 {% block hero %}
 
-    <div class="border border-1 w-9/12 mx-auto my-16 rounded-lg shadow-md p-4 bg-gray-50">
+    <div class="border border-1 w-8/12 mx-auto my-16 rounded-lg shadow-md p-4 bg-gray-50 ">
         <h1 class="text-2xl my-4 font-bold">Saved Contents</h1>
-        {% for content in generated_content %}
-        <a href="#" class="block p-2 border mb-4 rounded-lg shadow-lg font-semibold bg-white">
-            {{content.name}}
-        </a>        
-        {% endfor %}
+        {% if generated_content %}
+            {% for content in generated_content reversed %}
+            <div class="flex p-6 border mb-4 rounded-lg shadow-lg  bg-white justify-between">
+                <a href="{% url 'saved-detail' content.id %}" class="block text-lg font-semibold">
+                    {{content.name}}
+                </a>  
+                <p>{{content.created_at|date:"M d, Y"}}</p>
+                <a href="#" class="text-red-600">Remove</a>
+            </div>
+
+            {% endfor %}
+        {% else %}
+        <p class="text-lg text-center my-6">No contents available!</p>
+        {% endif %}
     </div>
 
 {% endblock %}

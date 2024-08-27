@@ -97,6 +97,7 @@ def get_transcription(link):
         response_format="text",
         temperature=0.0,
         )
+    os.remove(f"{filename}")
     return transcription
 
 # Generate summary 
@@ -246,8 +247,11 @@ def user_logout(request):
 
 def saved_content(request):
     generated_content = GeneratedContent.objects.filter(user=request.user)
-    # video_detail = VideoDetail.objects.filter(generated_content=generated_content)
     return render(request,"saved.html",{'generated_content':generated_content})
+def saved_detail(request,content_id):
+    generated_content = GeneratedContent.objects.get(id=content_id)
+    video_detail = generated_content.video_details.all()
+    return render(request,"saved_detail.html",{'video_detail':video_detail})
 
 
 def download_chat_pdf(request,video_id):

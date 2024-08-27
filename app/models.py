@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 class GeneratedContent(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return self.name
 
@@ -20,7 +22,6 @@ class VideoDetail(models.Model):
     transcript = models.TextField()
     summary = models.TextField()
     publish_date = models.DateField("Published Date")
-    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
