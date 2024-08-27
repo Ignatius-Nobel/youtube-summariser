@@ -2,3 +2,4 @@ pytube
 yt-dlp
 groq
 python-dotenv
+openai

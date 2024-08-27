@@ -56,22 +56,22 @@
                             <button id="details-button-{{video.id}}" type="button" class="py-2 px-10 rounded-t-lg bg-blue-500" onclick="showContent('{{video.id}}');" >Details</button>
 
                           </div>
-                          <!-- Text content -->
-                          <div id="transcript-tab-{{video.id}}" class="border border-t-0 p-2 rounded-lg rounded-tl-none shadow-lg">
+                          <!-- Transcript content -->
+                          <div id="transcript-tab-{{video.id}}" class="border border-t-0 p-8 rounded-lg rounded-tl-none shadow-lg">
                             <p class="text-2xl font-bold my-4">Transcript</p>
                             {{ video.transcript }}
                           </div>
-                          <div class="hidden border border-t-0 p-2 rounded-lg rounded-tl-none shadow-lg" id="summary-tab-{{video.id}}">
+                          <!-- Summary content -->
+                          <div class="hidden border border-t-0 p-8 rounded-lg rounded-tl-none shadow-lg" id="summary-tab-{{video.id}}">
                             <p class="text-2xl font-bold my-4">Summary</p>
-                            Description: {{ video.description }}<br />
-                            Published Date: {{ video.publish_date }}
+                            <github-md>{{video.summary}}</github-md>
                           </div>
                           <!-- Content for Blog -->
-                          <div class="hidden border p-2 rounded-lg rounded-tl-none shadow-lg" id="blog-tab-{{video.id}}">
+                          <div class="hidden border p-8 rounded-lg rounded-tl-none shadow-lg" id="blog-tab-{{video.id}}">
                             <p>Blog content goes here...</p>
                           </div>
                           <!-- Video Details -->
-                          <div class="hidden border p-2 rounded-lg rounded-tl-none shadow-lg" id="details-tab-{{video.id}}">
+                          <div class="hidden border p-8 rounded-lg rounded-tl-none shadow-lg" id="details-tab-{{video.id}}">
                             <p class="text-2xl font-bold my-4">Details</p>
                             <p><span class="font-semibold">Title :</span> {{video.title}}</p> 
                             <p><span class="font-semibold">Author :</span> {{ video.author }}</p> 
@@ -123,6 +123,6 @@
 
     }
   </script>
-  
+  <script src="https://cdn.jsdelivr.net/gh/MarketingPipeline/Markdown-Tag/markdown-tag-GitHub.js"></script>
   <script src="{% static 'result.js' %}"></script>
 {% endblock %}

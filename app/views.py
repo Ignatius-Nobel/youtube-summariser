@@ -10,9 +10,11 @@ from .models import GeneratedContent,VideoDetail
 import yt_dlp as youtube_dl
 from groq import Groq
 from dotenv import load_dotenv
+from openai import OpenAI
 
 load_dotenv()
 groq_api = os.getenv('GROQ_API_KEY')
+openai_api = os.getenv('OPENAI_API_KEY')
 
 links = []
 # Create your views here.
@@ -36,6 +38,8 @@ def get_result(request):
                 title, author, length, pub_date = get_details(link)
                 transcript = get_transcription(link)
                 print(transcript)
+                summary = generate_summary(transcript)
+                print(summary)
                 video_details = VideoDetail.objects.create(
                     generated_content=generated_content,
                     title=title,
@@ -44,6 +48,7 @@ def get_result(request):
                     publish_date=pub_date,
                     youtube_link = link,
                     transcript = transcript,
+                    summary = summary,
                 )
                 video_details.save()
 
@@ -84,6 +89,76 @@ def get_transcription(link):
         temperature=0.0,
         )
     return transcription
+
+# Generate summary 
+def generate_summary(transcription):
+    client = OpenAI(api_key=openai_api)
+    prompt1 = f"""You are tasked with expertly summarizing a transcript from a YouTube video or podcast. Your goal is to create a comprehensive summary that captures all the key points, allowing a reader to understand the content well enough to hold an intellectual conversation about it with the original author.
+ 
+    Here is the transcript you will be summarizing:
+    
+    <transcript>
+    {transcription}
+    </transcript>
+    
+    Please follow these steps to create your summary:
+    
+    1. Carefully read through the entire transcript, paying close attention to the main topics, arguments, and ideas presented.
+    
+    2. Identify the key points, ensuring you capture:
+    - Main themes and topics
+    - Important arguments or claims
+    - Supporting evidence or examples
+    - Any significant conclusions or insights
+    
+    3. As you analyze the content, consider:
+    - The overall structure and flow of the discussion
+    - Any recurring themes or ideas
+    - Unique perspectives or novel information presented
+    - Potential counterarguments or limitations addressed
+    
+    4. Create a concise yet comprehensive summary that:
+    - Covers all major points without unnecessary detail
+    - Maintains the logical flow and structure of the original content
+    - Accurately represents the author's views and arguments
+    - Includes any crucial context or background information
+    
+    5. Ensure your summary would enable the reader to:
+    - Understand the main arguments and their supporting evidence
+    - Grasp the significance of the topic and its implications
+    - Identify potential areas for further discussion or debate
+    - Formulate intelligent questions or responses related to the content
+    
+    6. Structure your summary in a clear and organized manner, using:
+    - Short paragraphs for each main point or theme
+    - Bullet points for lists of related ideas or examples, if appropriate
+    - Transitional phrases to maintain coherence between sections
+    
+    7. Throughout your summary, focus on providing information that would prepare the reader for an intellectual conversation. Include:
+    - Key terminology or concepts introduced in the transcript
+    - Notable quotes or statements, if particularly impactful
+    - Any controversies or debates mentioned within the topic
+    
+    8. After completing your summary, review it to ensure it accurately represents the original content without bias or misinterpretation.
+    
+    Please provide your expert summary. Aim for a length that balances comprehensiveness with conciseness, typically between 300-500 words, but adjust as necessary based on the complexity and length of the original transcript."""
+    
+    summary = client.chat.completions.create(
+        model="gpt-4o-mini",  
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt1}
+        ],
+        temperature=1,
+        max_tokens=1000,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0,
+        response_format={"type": "text"}
+    )
+    generated_summary = summary.choices[0].message.content.strip()
+    return generated_summary
+
 # Download audio
 def download_audio(link):
     ydl_opts = {
