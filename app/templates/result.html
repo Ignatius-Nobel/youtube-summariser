@@ -1,128 +1,169 @@
-{% extends 'layout.html' %}
-{% load static %}
- {% block title %}
+{% extends 'layout.html' %} {% load static %} {% block title %}
 <title>Result</title>
-{% endblock %} 
-{% block navlinks %}
-    <li><a class="hover:text-white" href="{% url 'home' %}">Home</a></li>
-    <li><a class="hover:text-white" href="#">Saved</a></li>
-    <li><a class="hover:text-white" href="#">Logout</a></li>
-{% endblock %}
-{% block hero %}
+{% endblock %} {% block navlinks %}
+<li><a class="hover:text-white" href="{% url 'home' %}">Home</a></li>
+<li><a class="hover:text-white" href="#">Saved</a></li>
+<li><a class="hover:text-white" href="#">Logout</a></li>
+{% endblock %} {% block hero %}
 <style>
   /* Hide scrollbar for Chrome, Safari and Opera */
   .scrollbar-hide::-webkit-scrollbar {
-      display: none;
+    display: none;
   }
-  
+
   /* Hide scrollbar for IE, Edge and Firefox */
   .scrollbar-hide {
-      -ms-overflow-style: none;  /* IE and Edge */
-      scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
 </style>
 <div class="flex">
-        <div class="w-3/8 h-fit sticky top-1/4 left-5 bg-gray-100 rounded-md border border-1 shadow-lg p-3">
-          <h1 class="text-lg font-bold my-2 text-center">Contents</h1>
-          <div class="max-h-48 overflow-y-scroll p-4 space-y-3 scrollbar-hide border border-1 rounded-lg bg-gray-50">
-            {% for video in video_detail %}
-              <a href="#video-{{video.id}}" class="shadow-md text-sm font-semibold rounded-md flex flex-col p-2 bg-white">
-                {{video.title|truncatechars:25}}
-              </a>
-            {% endfor %}
+  <div
+    class="w-3/8 h-fit sticky top-1/4 left-5 bg-gray-100 rounded-md border border-1 shadow-lg p-3"
+  >
+    <h1 class="text-lg font-bold my-2 text-center">Contents</h1>
+    <div
+      class="max-h-48 overflow-y-scroll p-4 space-y-3 scrollbar-hide border border-1 rounded-lg bg-gray-50"
+    >
+      {% for video in video_detail %}
+      <a
+        href="#video-{{video.id}}"
+        class="shadow-md text-sm font-semibold rounded-md flex flex-col p-2 bg-white"
+      >
+        {{video.title|truncatechars:25}}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Display content -->
+  <div class="w-8/12 mx-auto my-16 bg-gray-100 rounded-lg py-8 border border-1">
+    <h1 class="text-2xl my-4 font-bold ml-8">Generated Content</h1>
+    <ul>
+      {% for video in video_detail %}
+      <li
+        id="video-{{video.id}}"
+        class="flex flex-col shadow-md rounded-md p-4 py-8 m-5 cursor-pointer bg-white"
+        onclick="toggleContent('{{video.id}}')"
+      >
+        <strong>{{ video.title }}</strong><br />
+        Author: {{ video.author }}<br />
+        <div
+          id="content-{{video.id}}"
+          class="hidden mt-8"
+          onclick="event.stopPropagation()"
+        >
+          <div class="flex flex-start w-fit space-x-2 text-white font-semibold">
+            <button
+              id="transcript-button-{{video.id}}"
+              type="button"
+              class="border-b-0 rounded-t-lg py-2 px-6 bg-blue-500"
+              onclick="showContent('{{video.id}}', 'transcript-tab');"
+            >
+              Transcript
+            </button>
+
+            <button
+              id="summary-button-{{video.id}}"
+              type="button"
+              class="py-2 px-6 rounded-t-lg bg-blue-500"
+              onclick="showContent('{{video.id}}', 'summary-tab');"
+            >
+              Summary
+            </button>
+
+            <button
+              id="blog-button-{{video.id}}"
+              type="button"
+              class="py-2 px-10 rounded-t-lg bg-blue-500"
+              onclick="showContent('{{video.id}}', 'blog-tab');"
+            >
+              Blog
+            </button>
+
+            <button
+              id="details-button-{{video.id}}"
+              type="button"
+              class="py-2 px-10 rounded-t-lg bg-blue-500"
+              onclick="showContent('{{video.id}}', 'details-tab');"
+            >
+              Details
+            </button>
+          </div>
+          <!-- Transcript content -->
+          <div
+            id="transcript-tab-{{video.id}}"
+            class="border border-t-0 p-8 rounded-lg rounded-tl-none shadow-lg"
+          >
+            <p class="text-2xl font-bold my-4">Transcript</p>
+            {{ video.transcript }}
+          </div>
+          <!-- Summary content -->
+          <div
+            class="hidden border border-t-0 p-8 rounded-lg rounded-tl-none shadow-lg"
+            id="summary-tab-{{video.id}}"
+          >
+            <p class="text-2xl font-bold my-4">Summary</p>
+            <github-md>{{video.summary}}</github-md>
+          </div>
+          <!-- Content for Blog -->
+          <div
+            class="hidden border p-8 rounded-lg rounded-tl-none shadow-lg"
+            id="blog-tab-{{video.id}}"
+          >
+            <github-md>{{video.blog}}</github-md>
+          </div>
+          <!-- Video Details -->
+          <div
+            class="hidden border p-8 rounded-lg rounded-tl-none shadow-lg"
+            id="details-tab-{{video.id}}"
+          >
+            <p class="text-2xl font-bold my-4">Details</p>
+            <p><span class="font-semibold">Title :</span> {{video.title}}</p>
+            <p>
+              <span class="font-semibold">Author :</span> {{ video.author }}
+            </p>
+            <p>
+              <span class="font-semibold">Length :</span> {{ video.length }} s
+            </p>
+            <p>
+              <span class="font-semibold">Published Date :</span> {{
+              video.publish_date }}
+            </p>
+            <p>
+              <span class="font-semibold">Link :</span>
+              <a
+                href="{{ video.youtube_link }}"
+                class="text-blue-400"
+                target="_blank"
+                >{{ video.youtube_link }}</a
+              >
+            </p>
           </div>
         </div>
-                
-                <!-- Display content -->
-                <div class="w-8/12 mx-auto my-16 bg-gray-100 rounded-lg py-8 border border-1">
-                  <h1 class="text-2xl my-4 font-bold ml-8">Generated Content</h1>
-                  <ul>
-                    {% for video in video_detail %}
-                    <li id="video-{{video.id}}" 
-                        class="flex flex-col shadow-md rounded-md p-4 py-8 m-5 cursor-pointer bg-white"
-                        onclick="toggleContent('{{video.id}}')"
-                    >
-                        <strong>{{ video.title }}</strong><br />
-                        Author: {{ video.author }}<br />
-                        <div id="content-{{video.id}}" class="hidden mt-8" onclick="event.stopPropagation()">
-                          <div class="flex flex-start w-fit space-x-2 text-white font-semibold">
-
-                            <button id="transcript-button-{{video.id}}" type="button" class="border-b-0 rounded-t-lg py-2 px-6 bg-blue-500" onclick="showContent('{{video.id}}');" >Transcript</button>
-
-                            <button id="summary-button-{{video.id}}" type="button" class="py-2 px-6 rounded-t-lg bg-blue-500" onclick="showContent('{{video.id}}');"  >Summary</button>
-
-                            <button id="blog-button-{{video.id}}" type="button" class="py-2 px-10 rounded-t-lg bg-blue-500" onclick="showContent('{{video.id}}');" >Blog</button>
-
-                            <button id="details-button-{{video.id}}" type="button" class="py-2 px-10 rounded-t-lg bg-blue-500" onclick="showContent('{{video.id}}');" >Details</button>
-
-                          </div>
-                          <!-- Transcript content -->
-                          <div id="transcript-tab-{{video.id}}" class="border border-t-0 p-8 rounded-lg rounded-tl-none shadow-lg">
-                            <p class="text-2xl font-bold my-4">Transcript</p>
-                            {{ video.transcript }}
-                          </div>
-                          <!-- Summary content -->
-                          <div class="hidden border border-t-0 p-8 rounded-lg rounded-tl-none shadow-lg" id="summary-tab-{{video.id}}">
-                            <p class="text-2xl font-bold my-4">Summary</p>
-                            <github-md>{{video.summary}}</github-md>
-                          </div>
-                          <!-- Content for Blog -->
-                          <div class="hidden border p-8 rounded-lg rounded-tl-none shadow-lg" id="blog-tab-{{video.id}}">
-                            <github-md>{{video.blog}}</github-md>
-                          </div>
-                          <!-- Video Details -->
-                          <div class="hidden border p-8 rounded-lg rounded-tl-none shadow-lg" id="details-tab-{{video.id}}">
-                            <p class="text-2xl font-bold my-4">Details</p>
-                            <p><span class="font-semibold">Title :</span> {{video.title}}</p> 
-                            <p><span class="font-semibold">Author :</span> {{ video.author }}</p> 
-                            <p><span class="font-semibold">Length :</span> {{ video.length }} s</p> 
-                            <p><span class="font-semibold">Published Date :</span> {{ video.publish_date }}</p> 
-                            <p><span class="font-semibold">Link :</span> <a href="{{ video.youtube_link }}" class="text-blue-400" target="_blank">{{ video.youtube_link }}</a></p> 
-                          </div>
-                        </div>
-                    </li>
-                    {% empty %}
-                    <li>No videos available.</li>
-                    {% endfor %}
-                </ul>
-              </div>
+      </li>
+      {% empty %}
+      <li>No videos available.</li>
+      {% endfor %}
+    </ul>
+  </div>
 </div>
 
-{% endblock %}
-{% block script%}
-  <script>
-    function showContent(id){
-      // show transcript
-      document.getElementById(`transcript-button-${id}`).addEventListener('click',()=>{
-        document.getElementById(`summary-tab-${id}`).classList.add("hidden")
-        document.getElementById(`blog-tab-${id}`).classList.add("hidden")
-        document.getElementById(`transcript-tab-${id}`).classList.remove("hidden")
-        document.getElementById(`details-tab-${id}`).classList.add("hidden")
-      })
-      // show summary
-      document.getElementById(`summary-button-${id}`).addEventListener('click',()=>{
-        document.getElementById(`summary-tab-${id}`).classList.remove("hidden")
-        document.getElementById(`blog-tab-${id}`).classList.add("hidden")
-        document.getElementById(`transcript-tab-${id}`).classList.add("hidden")
-        document.getElementById(`details-tab-${id}`).classList.add("hidden")
-      })
-      // show blog
-      document.getElementById(`blog-button-${id}`).addEventListener('click',()=>{
-        document.getElementById(`summary-tab-${id}`).classList.add("hidden")
-        document.getElementById(`blog-tab-${id}`).classList.remove("hidden")
-        document.getElementById(`transcript-tab-${id}`).classList.add("hidden")
-        document.getElementById(`details-tab-${id}`).classList.add("hidden")
-      })
-      // show details
-      document.getElementById(`details-button-${id}`).addEventListener('click',()=>{
-        document.getElementById(`summary-tab-${id}`).classList.add("hidden")
-        document.getElementById(`blog-tab-${id}`).classList.add("hidden")
-        document.getElementById(`transcript-tab-${id}`).classList.add("hidden")
-        document.getElementById(`details-tab-${id}`).classList.remove("hidden")
-      })
+{% endblock %} {% block script%}
+<script>
+  function showContent(id, content) {
+    // List of all tab IDs
+    const tabs = ["transcript-tab", "summary-tab", "blog-tab", "details-tab"];
 
-    }
-  </script>
-  <script src="https://cdn.jsdelivr.net/gh/MarketingPipeline/Markdown-Tag/markdown-tag-GitHub.js"></script>
-  <script src="{% static 'result.js' %}"></script>
+    // Hide all tabs
+    tabs.forEach((tab) => {
+      document.getElementById(`${tab}-${id}`).classList.add("hidden");
+    });
+
+    // Show the selected tab
+    document.getElementById(`${content}-${id}`).classList.remove("hidden");
+  }
+</script>
+<script src="https://cdn.jsdelivr.net/gh/MarketingPipeline/Markdown-Tag/markdown-tag-GitHub.js"></script>
+<script src="{% static 'result.js' %}"></script>
 {% endblock %}
