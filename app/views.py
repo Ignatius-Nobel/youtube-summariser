@@ -40,6 +40,8 @@ def get_result(request):
                 print(transcript)
                 summary = generate_summary(transcript)
                 print(summary)
+                blog = generate_blog(transcript)
+                print(blog)
                 video_details = VideoDetail.objects.create(
                     generated_content=generated_content,
                     title=title,
@@ -49,6 +51,7 @@ def get_result(request):
                     youtube_link = link,
                     transcript = transcript,
                     summary = summary,
+                    blog = blog,
                 )
                 video_details.save()
 
@@ -158,6 +161,27 @@ def generate_summary(transcription):
     )
     generated_summary = summary.choices[0].message.content.strip()
     return generated_summary
+
+# Generate blog
+
+def generate_blog(transcription):
+        client = OpenAI(api_key=openai_api)
+        prompt = f"Based on the following transcript from a YouTube video, write a comprehensive blog article. Make it look like a proper blog article and not like a YouTube video transcript:\n\n{transcription}\n\nArticle:"
+        response = client.chat.completions.create(
+        model="gpt-4o-mini",  
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=1,
+        max_tokens=1000,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0,
+        response_format={"type": "text"}
+        )
+        generated_blog = response.choices[0].message.content.strip()
+        return generated_blog
 
 # Download audio
 def download_audio(link):
