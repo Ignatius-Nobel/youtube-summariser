@@ -53,6 +53,8 @@
 
                             <button id="blog-button-{{video.id}}" type="button" class="py-2 px-10 rounded-t-lg bg-blue-500" onclick="showContent('{{video.id}}');" >Blog</button>
 
+                            <button id="details-button-{{video.id}}" type="button" class="py-2 px-10 rounded-t-lg bg-blue-500" onclick="showContent('{{video.id}}');" >Details</button>
+
                           </div>
                           <!-- Text content -->
                           <div id="transcript-tab-{{video.id}}" class="border border-t-0 p-2 rounded-lg rounded-tl-none shadow-lg">
@@ -60,12 +62,22 @@
                             {{ video.transcript }}
                           </div>
                           <div class="hidden border border-t-0 p-2 rounded-lg rounded-tl-none shadow-lg" id="summary-tab-{{video.id}}">
+                            <p class="text-2xl font-bold my-4">Summary</p>
                             Description: {{ video.description }}<br />
                             Published Date: {{ video.publish_date }}
                           </div>
                           <!-- Content for Blog -->
                           <div class="hidden border p-2 rounded-lg rounded-tl-none shadow-lg" id="blog-tab-{{video.id}}">
                             <p>Blog content goes here...</p>
+                          </div>
+                          <!-- Video Details -->
+                          <div class="hidden border p-2 rounded-lg rounded-tl-none shadow-lg" id="details-tab-{{video.id}}">
+                            <p class="text-2xl font-bold my-4">Details</p>
+                            <p><span class="font-semibold">Title :</span> {{video.title}}</p> 
+                            <p><span class="font-semibold">Author :</span> {{ video.author }}</p> 
+                            <p><span class="font-semibold">Length :</span> {{ video.length }} s</p> 
+                            <p><span class="font-semibold">Published Date :</span> {{ video.publish_date }}</p> 
+                            <p><span class="font-semibold">Link :</span> <a href="{{ video.youtube_link }}" class="text-blue-400" target="_blank">{{ video.youtube_link }}</a></p> 
                           </div>
                         </div>
                     </li>
@@ -85,18 +97,28 @@
         document.getElementById(`summary-tab-${id}`).classList.add("hidden")
         document.getElementById(`blog-tab-${id}`).classList.add("hidden")
         document.getElementById(`transcript-tab-${id}`).classList.remove("hidden")
+        document.getElementById(`details-tab-${id}`).classList.add("hidden")
       })
       // show summary
       document.getElementById(`summary-button-${id}`).addEventListener('click',()=>{
         document.getElementById(`summary-tab-${id}`).classList.remove("hidden")
         document.getElementById(`blog-tab-${id}`).classList.add("hidden")
         document.getElementById(`transcript-tab-${id}`).classList.add("hidden")
+        document.getElementById(`details-tab-${id}`).classList.add("hidden")
       })
       // show blog
       document.getElementById(`blog-button-${id}`).addEventListener('click',()=>{
         document.getElementById(`summary-tab-${id}`).classList.add("hidden")
         document.getElementById(`blog-tab-${id}`).classList.remove("hidden")
         document.getElementById(`transcript-tab-${id}`).classList.add("hidden")
+        document.getElementById(`details-tab-${id}`).classList.add("hidden")
+      })
+      // show details
+      document.getElementById(`details-button-${id}`).addEventListener('click',()=>{
+        document.getElementById(`summary-tab-${id}`).classList.add("hidden")
+        document.getElementById(`blog-tab-${id}`).classList.add("hidden")
+        document.getElementById(`transcript-tab-${id}`).classList.add("hidden")
+        document.getElementById(`details-tab-${id}`).classList.remove("hidden")
       })
 
     }
