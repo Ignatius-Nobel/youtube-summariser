@@ -18,13 +18,14 @@ from io import BytesIO
 from xhtml2pdf import pisa
 import asyncio
 import edge_tts
+from django.core.paginator import Paginator
 
 load_dotenv()
 groq_api = os.getenv('GROQ_API_KEY')
 openai_api = os.getenv('OPENAI_API_KEY')
 
 links = []
-# Create your views here.
+# Home page
 @login_required
 def home(request):
     return render(request,"index.html")
@@ -75,7 +76,7 @@ def result_page(request,content_id):
     video_details = VideoDetail.objects.filter(generated_content=content).order_by('id')
     return render(request, 'result.html', {'content': content,'video_detail': video_details})
 
-# get details
+# get video details
 def get_details(link):
     yt = YouTube(link)
     if yt:
@@ -208,6 +209,7 @@ def download_audio(link):
     saved_file_path = os.path.abspath(file_name)
     return saved_file_path
 
+# user login
 def user_login(request):
     if request.method == "POST":
         username = request.POST.get('username')
@@ -220,6 +222,8 @@ def user_login(request):
             error_message = 'Invalid credentials!!!'
             return render(request,'login.html',{'error_message':error_message})
     return render(request,"login.html")
+
+# user register
 def user_register(request):
     if request.method == "POST":
         username = request.POST.get('username')
@@ -243,16 +247,24 @@ def user_register(request):
 def user_logout(request):
     logout(request)
     return redirect('home')
-
+# display saved content
 def saved_content(request):
     generated_content = GeneratedContent.objects.filter(user=request.user)
-    return render(request,"saved.html",{'generated_content':generated_content})
+    
+    # Pagination setup
+    paginator = Paginator(generated_content, 5)  # Show 5 contents per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, "saved.html", {'page_obj': page_obj})
+
+# saved content details
 def saved_detail(request,content_id):
     generated_content = GeneratedContent.objects.get(id=content_id)
     video_detail = generated_content.video_details.all()
     return render(request,"saved_detail.html",{'video_detail':video_detail})
 
-
+# Download PDF
 def download_chat_pdf(request,video_id):
     video = VideoDetail.objects.get(id=video_id)
     title = video.title
@@ -283,6 +295,7 @@ def download_chat_pdf(request,video_id):
 
     return response
 
+# download summary audio
 def generate_audio(request, video_id):
     video = VideoDetail.objects.get(id=video_id)
     title = video.title
@@ -311,7 +324,8 @@ def generate_audio(request, video_id):
         return FileResponse(open(audio_file_path, 'rb'), as_attachment=True, filename=f"{title}_summary.mp3")
     else:
         raise Http404("Audio file not found.")
-# Transcript Audio
+    
+# Download Transcript Audio
 def transcript_audio(request,video_id):
     video = VideoDetail.objects.get(id=video_id)
     title = video.title
@@ -341,7 +355,8 @@ def transcript_audio(request,video_id):
 
     else:
         raise Http404("Audio file not found.")
-        
+
+# Remove contents from saved contents      
 def remove_content(request,pk):
     post = GeneratedContent.objects.get(pk=pk)
     if post:
