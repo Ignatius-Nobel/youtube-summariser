@@ -7,16 +7,16 @@
 
 <!-- Navbar links -->
 {% block navlinks %}
-    <li class="hover:text-white">Welcome! {{ user.username|title }}</li>
+    <li class="italic hover:text-white">Welcome! {{ user.username|title }}</li>
     <li><a class="hover:text-white" href="{% url 'home' %}">Home</a></li>
     <li><a class="hover:text-white" href="{% url 'saved' %}">Saved</a></li>
     <li><a class="hover:text-white" href="logout">Logout</a></li>
 {% endblock %}
 
 {% block hero %} 
-    <div class="w-1/2 my-16 mx-auto rounded-lg border p-8 shadow-lg">
+    <div class="w-1/2 my-16 mx-auto rounded-lg border p-8 shadow-lg bg-blue-50">
         <p class="text-center text-2xl font-bold mb-5">Audio Evaluator</p>
-        <p class="mb-8 text-center">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ut natus, consequuntur id ex omnis repudiandae neque! Cum, obcaecati in consequatur nihil, optio est eligendi consequuntur expedita dolorum dicta voluptatum temporibus.</p>
+        <p class="mb-8 text-center">"Transform YouTube videos into insightful transcripts, concise summaries, and engaging blogs with just a few clicks. Unlock the power of content creation and elevate your ideas, all from a single video source."</p>
         <!-- Display error messages if link is invalid -->
         <div id="link-error-message" class="flex justify-center text-red-600 mb-4">
             {% if messages %}

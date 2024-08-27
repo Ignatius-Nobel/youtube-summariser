@@ -18,12 +18,13 @@
   }
 </style>
 <div class="flex">
+  <!-- Contents Tab -->
   <div
-    class="w-3/8 h-fit sticky top-1/4 left-5 bg-gray-100 rounded-md border border-1 shadow-lg p-3"
+    class="w-3/8 h-fit sticky top-1/4 left-5 bg-blue-200 rounded-md border border-1 shadow-lg p-3"
   >
     <h1 class="text-lg font-bold my-2 text-center">Contents</h1>
     <div
-      class="max-h-48 overflow-y-scroll p-4 space-y-3 scrollbar-hide border border-1 rounded-lg bg-gray-50"
+      class="max-h-48 overflow-y-scroll p-4 space-y-3 scrollbar-hide border border-1 rounded-lg bg-blue-100"
     >
       {% for video in video_detail %}
       <a
@@ -37,13 +38,13 @@
   </div>
 
   <!-- Display content -->
-  <div class="w-8/12 mx-auto my-16 bg-gray-100 rounded-lg py-8 border border-1">
-    <h1 class="text-2xl my-4 font-bold ml-6">Generated Content</h1>
+  <div class="w-8/12 mx-auto my-16 bg-blue-200 rounded-lg py-8 border border-1">
+    <h1 class="text-2xl my-4 font-bold ml-6">Generated Contents</h1>
     <ul>
       {% for video in video_detail %}
       <li
         id="video-{{video.id}}"
-        class="flex flex-col shadow-md rounded-md p-8 py-8 m-5 bg-white"
+        class="flex flex-col shadow-md rounded-md p-8 py-8 m-5 bg-blue-50"
         onclick="toggleContent('{{video.id}}')"
       >
         <p class="text-xl font-bold">{{ video.title }}</p>
@@ -55,7 +56,7 @@
         >
         <!-- Download Chat and Audio -->
         <div class="flex justify-end mb-4">
-          <a href= "{% url 'download_chat_pdf' video.id %}" class="border bg-red-500 p-2 rounded-lg text-white font-semibold">Download Chat</a>
+          <a href= "{% url 'download_chat_pdf' video.id %}" class="border bg-red-500 p-2 rounded-lg text-white font-semibold">Download PDF</a>
         </div>
         <!-- Transcript, Summary and Blog -->
           <div class="flex flex-start w-fit space-x-2 text-white font-semibold">
@@ -98,42 +99,45 @@
           <!-- Transcript content -->
           <div
             id="transcript-tab-{{video.id}}"
-            class="border p-8 rounded-lg rounded-tl-none shadow-lg"
+            class="border p-8 rounded-lg rounded-tl-none shadow-lg bg-white"
           >
             <div class="flex justify-between items-center">
               <p class="text-2xl font-bold my-4">Transcript</p>
               <a href="{% url 'transcript-audio' video.id %}" class="border p-2 bg-green-500 h-fit rounded-lg text-white font-semibold">Transcript Audio</a>
             </div>
+            <hr class="h-2 w-full">
             <github-md>{{ video.transcript }}</github-md>             
 
 
           </div>
           <!-- Summary content -->
           <div
-            class="hidden border p-8 rounded-lg rounded-tl-none shadow-lg"
+            class="hidden border p-8 rounded-lg rounded-tl-none shadow-lg bg-white"
             id="summary-tab-{{video.id}}"
           >
           <div class="flex justify-between items-center">
             <p class="text-2xl font-bold my-4">Summary</p>
             <a href="{% url 'download-audio' video.id %}" class="border p-2 bg-green-500 h-fit rounded-lg text-white font-semibold">Summary Audio</a>
           </div>  
-
+          <hr class="h-2 w-full">
             <github-md>{{video.summary}}</github-md>
           </div>
           <!-- Content for Blog -->
           <div
-            class="hidden border p-8 rounded-lg rounded-tl-none shadow-lg"
+            class="hidden border p-8 rounded-lg rounded-tl-none shadow-lg bg-white"
             id="blog-tab-{{video.id}}"
           >
-            <p class="text-2xl font-bold my-4">Blog</p>
+            <p class="text-2xl font-bold my-4">Blog Article</p>
+            <hr class="h-2 w-full">
             <github-md>{{video.blog}}</github-md>
           </div>
           <!-- Video Details -->
           <div
-            class="hidden border p-8 rounded-lg rounded-tl-none shadow-lg"
+            class="hidden border p-8 rounded-lg rounded-tl-none shadow-lg bg-white"
             id="details-tab-{{video.id}}"
           >
-            <p class="text-2xl font-bold my-4">Details</p>
+            <p class="text-2xl font-bold my-4">Video Details</p>
+            <hr class="h-2 w-full">
             <p><span class="font-semibold">Title :</span> {{video.title}}</p>
             <p>
               <span class="font-semibold">Author :</span> {{ video.author }}

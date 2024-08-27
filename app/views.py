@@ -11,12 +11,13 @@ import yt_dlp as youtube_dl
 from groq import Groq
 from dotenv import load_dotenv
 from openai import OpenAI
-from django.http import HttpResponse,StreamingHttpResponse
+from django.http import HttpResponse,StreamingHttpResponse,FileResponse,Http404
 from .models import VideoDetail
 import markdown2
 from io import BytesIO
 from xhtml2pdf import pisa
-from bs4 import BeautifulSoup
+import asyncio
+import edge_tts
 
 load_dotenv()
 groq_api = os.getenv('GROQ_API_KEY')
@@ -282,92 +283,64 @@ def download_chat_pdf(request,video_id):
 
     return response
 
-def generate_audio(request,video_id):
-    client = OpenAI(api_key=openai_api)
+def generate_audio(request, video_id):
     video = VideoDetail.objects.get(id=video_id)
     title = video.title
     summary = video.summary
     audio_file_path = f"{settings.MEDIA_ROOT}/summary_audio/{title}_summary.mp3"
+    VOICES = ['en-US-GuyNeural']
+    TEXT = summary
+    VOICE = VOICES[0]
+    OUTPUT_FILE = audio_file_path
+
+    async def amain():
+        communicate = edge_tts.Communicate(TEXT, VOICE)
+        await communicate.save(OUTPUT_FILE)
+
+    # Check if an event loop exists, if not, create a new one
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:  # No event loop in the current thread
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+    loop.run_until_complete(amain())
+
+    # Check if the file was created successfully
     if os.path.exists(audio_file_path):
-        def file_iterator(file_path, chunk_size=8192):
-            with open(file_path, 'rb') as f:
-                while True:
-                    chunk = f.read(chunk_size)
-                    if not chunk:
-                        break
-                    yield chunk
-
-        response = StreamingHttpResponse(file_iterator(audio_file_path), content_type='audio/mpeg')
-        response['Content-Disposition'] = f'attachment; filename="{title}_summary.mp3"'
-        return response
+        return FileResponse(open(audio_file_path, 'rb'), as_attachment=True, filename=f"{title}_summary.mp3")
     else:
-        # openai tts conversion
-        response = client.audio.speech.create(
-            model="tts-1-hd",
-            voice="alloy",
-            input=summary
-        )
-        response.stream_to_file(audio_file_path)
-        print("Audio saved!",audio_file_path)
-
-        if os.path.exists(audio_file_path):
-            def file_iterator(file_path, chunk_size=8192):
-                with open(file_path, 'rb') as f:
-                    while True:
-                        chunk = f.read(chunk_size)
-                        if not chunk:
-                            break
-                        yield chunk
-
-            response = StreamingHttpResponse(file_iterator(audio_file_path), content_type='audio/mpeg')
-            response['Content-Disposition'] = f'attachment; filename="{title}_summary.mp3"'
-            return response
-        else:
-            return HttpResponse("Audio file not found", status=404)
-        
+        raise Http404("Audio file not found.")
 # Transcript Audio
 def transcript_audio(request,video_id):
-    client = OpenAI(api_key=openai_api)
     video = VideoDetail.objects.get(id=video_id)
     title = video.title
     transcript = video.transcript
     audio_file_path = f"{settings.MEDIA_ROOT}/transcript_audio/{title}_transcript.mp3"
+    VOICES = ['en-US-GuyNeural']
+    TEXT = transcript
+    VOICE = VOICES[0]
+    OUTPUT_FILE = audio_file_path
+
+    async def amain():
+        communicate = edge_tts.Communicate(TEXT, VOICE)
+        await communicate.save(OUTPUT_FILE)
+
+    # Check if an event loop exists, if not, create a new one
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:  # No event loop in the current thread
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+    loop.run_until_complete(amain())
+
+    # Check if the file was created successfully
     if os.path.exists(audio_file_path):
-        def file_iterator(file_path, chunk_size=8192):
-            with open(file_path, 'rb') as f:
-                while True:
-                    chunk = f.read(chunk_size)
-                    if not chunk:
-                        break
-                    yield chunk
+        return FileResponse(open(audio_file_path, 'rb'), as_attachment=True, filename=f"{title}_transcript.mp3")
 
-        response = StreamingHttpResponse(file_iterator(audio_file_path), content_type='audio/mpeg')
-        response['Content-Disposition'] = f'attachment; filename="{title}_transcript.mp3"'
-        return response
     else:
-        # openai tts conversion
-        response = client.audio.speech.create(
-            model="tts-1-hd",
-            voice="alloy",
-            input=transcript
-        )
-        response.stream_to_file(audio_file_path)
-        print("Audio saved!",audio_file_path)
-
-        if os.path.exists(audio_file_path):
-            def file_iterator(file_path, chunk_size=8192):
-                with open(file_path, 'rb') as f:
-                    while True:
-                        chunk = f.read(chunk_size)
-                        if not chunk:
-                            break
-                        yield chunk
-
-            response = StreamingHttpResponse(file_iterator(audio_file_path), content_type='audio/mpeg')
-            response['Content-Disposition'] = f'attachment; filename="{title}_transcript.mp3"'
-            return response
-        else:
-            return HttpResponse("Audio file not found", status=404)
+        raise Http404("Audio file not found.")
         
 def remove_content(request,pk):
     post = GeneratedContent.objects.get(pk=pk)
