@@ -8,6 +8,12 @@ from django.conf import settings
 import os
 from .models import GeneratedContent,VideoDetail
 import yt_dlp as youtube_dl
+from groq import Groq
+from dotenv import load_dotenv
+
+load_dotenv()
+groq_api = os.getenv('GROQ_API_KEY')
+
 links = []
 # Create your views here.
 @login_required
@@ -26,11 +32,10 @@ def get_result(request):
                 name=content_title
             )
             generated_content.save()
-            print(generated_content.id)
             for link in links:
                 title, author, length, pub_date = get_details(link)
-                audio_path = download_audio(link)
-                print(audio_path)
+                transcript = get_transcription(link)
+                print(transcript)
                 video_details = VideoDetail.objects.create(
                     generated_content=generated_content,
                     title=title,
@@ -38,6 +43,7 @@ def get_result(request):
                     length=length,
                     publish_date=pub_date,
                     youtube_link = link,
+                    transcript = transcript,
                 )
                 video_details.save()
 
@@ -66,6 +72,18 @@ def get_details(link):
     else:
         return False
 
+# get transcript
+def get_transcription(link):
+    client = Groq()
+    filename = download_audio(link)
+    with open(filename, "rb") as file:
+        transcription = client.audio.transcriptions.create(
+        file=(filename, file.read()),
+        model="distil-whisper-large-v3-en",
+        response_format="text",
+        temperature=0.0,
+        )
+    return transcription
 # Download audio
 def download_audio(link):
     ydl_opts = {

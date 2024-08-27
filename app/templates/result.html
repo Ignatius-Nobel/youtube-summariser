@@ -44,28 +44,27 @@
                     >
                         <strong>{{ video.title }}</strong><br />
                         Author: {{ video.author }}<br />
-                        <div id="content-{{video.id}}" class="hidden mt-8">
+                        <div id="content-{{video.id}}" class="hidden mt-8" onclick="event.stopPropagation()">
                           <div class="flex flex-start w-fit space-x-2 text-white font-semibold">
 
-                            <button id="transcript-button" type="button" class="border-b-0 rounded-t-lg py-2 px-6 bg-blue-500" onclick="event.stopPropagation();">Transcript</button>
+                            <button id="transcript-button-{{video.id}}" type="button" class="border-b-0 rounded-t-lg py-2 px-6 bg-blue-500" onclick="showContent('{{video.id}}');" >Transcript</button>
 
-                            <button id="summary-button" type="button" class="py-2 px-6 rounded-t-lg bg-blue-500" onclick="event.stopPropagation();">Summary</button>
+                            <button id="summary-button-{{video.id}}" type="button" class="py-2 px-6 rounded-t-lg bg-blue-500" onclick="showContent('{{video.id}}');"  >Summary</button>
 
-                            <button id="blog-button" type="button" class="py-2 px-10 rounded-t-lg bg-blue-500" onclick="event.stopPropagation();">Blog</button>
+                            <button id="blog-button-{{video.id}}" type="button" class="py-2 px-10 rounded-t-lg bg-blue-500" onclick="showContent('{{video.id}}');" >Blog</button>
 
                           </div>
                           <!-- Text content -->
-                          <div id="transcript-tab" class="border border-t-0 p-2 rounded-lg rounded-tl-none shadow-lg">
-                            Length: {{ video.length }} seconds<br />
-                            Description: {{ video.description }}<br />
-                            Published Date: {{ video.publish_date }}
+                          <div id="transcript-tab-{{video.id}}" class="border border-t-0 p-2 rounded-lg rounded-tl-none shadow-lg">
+                            <p class="text-2xl font-bold my-4">Transcript</p>
+                            {{ video.transcript }}
                           </div>
-                          <div class="hidden border border-t-0 p-2 rounded-lg rounded-tl-none shadow-lg" id="summary-tab">
+                          <div class="hidden border border-t-0 p-2 rounded-lg rounded-tl-none shadow-lg" id="summary-tab-{{video.id}}">
                             Description: {{ video.description }}<br />
                             Published Date: {{ video.publish_date }}
                           </div>
                           <!-- Content for Blog -->
-                          <div class="hidden border p-2 rounded-lg rounded-tl-none shadow-lg" id="blog-tab">
+                          <div class="hidden border p-2 rounded-lg rounded-tl-none shadow-lg" id="blog-tab-{{video.id}}">
                             <p>Blog content goes here...</p>
                           </div>
                         </div>
@@ -79,5 +78,29 @@
 
 {% endblock %}
 {% block script%}
-    <script src="{% static 'result.js' %}"></script>
+  <script>
+    function showContent(id){
+      // show transcript
+      document.getElementById(`transcript-button-${id}`).addEventListener('click',()=>{
+        document.getElementById(`summary-tab-${id}`).classList.add("hidden")
+        document.getElementById(`blog-tab-${id}`).classList.add("hidden")
+        document.getElementById(`transcript-tab-${id}`).classList.remove("hidden")
+      })
+      // show summary
+      document.getElementById(`summary-button-${id}`).addEventListener('click',()=>{
+        document.getElementById(`summary-tab-${id}`).classList.remove("hidden")
+        document.getElementById(`blog-tab-${id}`).classList.add("hidden")
+        document.getElementById(`transcript-tab-${id}`).classList.add("hidden")
+      })
+      // show blog
+      document.getElementById(`blog-button-${id}`).addEventListener('click',()=>{
+        document.getElementById(`summary-tab-${id}`).classList.add("hidden")
+        document.getElementById(`blog-tab-${id}`).classList.remove("hidden")
+        document.getElementById(`transcript-tab-${id}`).classList.add("hidden")
+      })
+
+    }
+  </script>
+  
+  <script src="{% static 'result.js' %}"></script>
 {% endblock %}
