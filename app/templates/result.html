@@ -43,7 +43,7 @@
       {% for video in video_detail %}
       <li
         id="video-{{video.id}}"
-        class="flex flex-col shadow-md rounded-md p-8 py-8 m-5 cursor-pointer bg-white"
+        class="flex flex-col shadow-md rounded-md p-8 py-8 m-5 bg-white"
         onclick="toggleContent('{{video.id}}')"
       >
         <p class="text-xl font-bold">{{ video.title }}</p>
@@ -55,7 +55,7 @@
         >
         <!-- Download Chat and Audio -->
         <div class="flex justify-end mb-4">
-          <a href= "{% url 'download_chat_pdf' video.id %}" class="border bg-red-400 p-2 rounded-lg text-white font-semibold">Download Chat</a>
+          <a href= "{% url 'download_chat_pdf' video.id %}" class="border bg-red-500 p-2 rounded-lg text-white font-semibold">Download Chat</a>
         </div>
         <!-- Transcript, Summary and Blog -->
           <div class="flex flex-start w-fit space-x-2 text-white font-semibold">
@@ -100,8 +100,13 @@
             id="transcript-tab-{{video.id}}"
             class="border p-8 rounded-lg rounded-tl-none shadow-lg"
           >
-            <p class="text-2xl font-bold my-4">Transcript</p>
-            {{ video.transcript }}
+            <div class="flex justify-between items-center">
+              <p class="text-2xl font-bold my-4">Transcript</p>
+              <a href="{% url 'transcript-audio' video.id %}" class="border p-2 bg-green-500 h-fit rounded-lg text-white font-semibold">Transcript Audio</a>
+            </div>
+            <github-md>{{ video.transcript }}</github-md>             
+
+
           </div>
           <!-- Summary content -->
           <div
@@ -110,7 +115,7 @@
           >
           <div class="flex justify-between items-center">
             <p class="text-2xl font-bold my-4">Summary</p>
-            <a href="{% url 'download-audio' video.id %}" class="border p-2 bg-green-500 h-fit rounded-lg text-white font-semibold">Download Audio</a>
+            <a href="{% url 'download-audio' video.id %}" class="border p-2 bg-green-500 h-fit rounded-lg text-white font-semibold">Summary Audio</a>
           </div>  
 
             <github-md>{{video.summary}}</github-md>

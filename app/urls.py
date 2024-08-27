@@ -12,5 +12,6 @@ urlpatterns = [
     path('saved-detail/<int:content_id>/',views.saved_detail,name='saved-detail'),
     path('download-chat/<int:video_id>/', views.download_chat_pdf, name='download_chat_pdf'),
     path('download-audio/<int:video_id>/', views.generate_audio, name='download-audio'),
+    path('transcript-audio/<int:video_id>/', views.transcript_audio, name='transcript-audio'),
     path('remove-content/<int:pk>/', views.remove_content,name="remove-content")
 ]

@@ -193,19 +193,17 @@ def generate_blog(transcription):
 # Download audio
 def download_audio(link):
     ydl_opts = {
-        'format': 'bestaudio/best',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',  # Adjust quality as needed (128, 192, 256, etc.)
-        }],
+        'format': 'bestaudio/best',  # Download the best available audio
         'outtmpl': f'{settings.MEDIA_ROOT}/%(title)s.%(ext)s',  # Save with video title as file name
+        'quiet': True,  # Suppress verbose output for faster processing
+        'no_warnings': True,  # Suppress warnings to reduce overhead
     }
+
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         info_dict = ydl.extract_info(link, download=True)
-        file_name = ydl.prepare_filename(info_dict).replace(".webm", ".mp3").replace(".m4a", ".mp3")
+        file_name = ydl.prepare_filename(info_dict)
     
-    # Print the full path of the saved MP3 file
+    # Return the full path of the saved audio file
     saved_file_path = os.path.abspath(file_name)
     return saved_file_path
 
@@ -289,7 +287,7 @@ def generate_audio(request,video_id):
     video = VideoDetail.objects.get(id=video_id)
     title = video.title
     summary = video.summary
-    audio_file_path = f"{settings.MEDIA_ROOT}/summary_audio/{title}.mp3"
+    audio_file_path = f"{settings.MEDIA_ROOT}/summary_audio/{title}_summary.mp3"
     if os.path.exists(audio_file_path):
         def file_iterator(file_path, chunk_size=8192):
             with open(file_path, 'rb') as f:
@@ -300,7 +298,7 @@ def generate_audio(request,video_id):
                     yield chunk
 
         response = StreamingHttpResponse(file_iterator(audio_file_path), content_type='audio/mpeg')
-        response['Content-Disposition'] = f'attachment; filename="{title}.mp3"'
+        response['Content-Disposition'] = f'attachment; filename="{title}_summary.mp3"'
         return response
     else:
         # openai tts conversion
@@ -322,7 +320,51 @@ def generate_audio(request,video_id):
                         yield chunk
 
             response = StreamingHttpResponse(file_iterator(audio_file_path), content_type='audio/mpeg')
-            response['Content-Disposition'] = f'attachment; filename="{title}.mp3"'
+            response['Content-Disposition'] = f'attachment; filename="{title}_summary.mp3"'
+            return response
+        else:
+            return HttpResponse("Audio file not found", status=404)
+        
+# Transcript Audio
+def transcript_audio(request,video_id):
+    client = OpenAI(api_key=openai_api)
+    video = VideoDetail.objects.get(id=video_id)
+    title = video.title
+    transcript = video.transcript
+    audio_file_path = f"{settings.MEDIA_ROOT}/transcript_audio/{title}_transcript.mp3"
+    if os.path.exists(audio_file_path):
+        def file_iterator(file_path, chunk_size=8192):
+            with open(file_path, 'rb') as f:
+                while True:
+                    chunk = f.read(chunk_size)
+                    if not chunk:
+                        break
+                    yield chunk
+
+        response = StreamingHttpResponse(file_iterator(audio_file_path), content_type='audio/mpeg')
+        response['Content-Disposition'] = f'attachment; filename="{title}_transcript.mp3"'
+        return response
+    else:
+        # openai tts conversion
+        response = client.audio.speech.create(
+            model="tts-1-hd",
+            voice="alloy",
+            input=transcript
+        )
+        response.stream_to_file(audio_file_path)
+        print("Audio saved!",audio_file_path)
+
+        if os.path.exists(audio_file_path):
+            def file_iterator(file_path, chunk_size=8192):
+                with open(file_path, 'rb') as f:
+                    while True:
+                        chunk = f.read(chunk_size)
+                        if not chunk:
+                            break
+                        yield chunk
+
+            response = StreamingHttpResponse(file_iterator(audio_file_path), content_type='audio/mpeg')
+            response['Content-Disposition'] = f'attachment; filename="{title}_transcript.mp3"'
             return response
         else:
             return HttpResponse("Audio file not found", status=404)
