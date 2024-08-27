@@ -326,3 +326,9 @@ def generate_audio(request,video_id):
             return response
         else:
             return HttpResponse("Audio file not found", status=404)
+        
+def remove_content(request,pk):
+    post = GeneratedContent.objects.get(pk=pk)
+    if post:
+        post.delete()
+    return redirect('saved')
