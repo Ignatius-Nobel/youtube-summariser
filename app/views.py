@@ -19,6 +19,7 @@ from xhtml2pdf import pisa
 import asyncio
 import edge_tts
 from django.core.paginator import Paginator
+from bs4 import BeautifulSoup
 
 load_dotenv()
 groq_api = os.getenv('GROQ_API_KEY')
@@ -274,16 +275,13 @@ def download_chat_pdf(request,video_id):
 
     # Data to be included in the PDF
     story = ""
-    story = f"<h1 align='center' style=\"font-size:30px\" >{title}</h1>" + '\n\n\n\n' + "<h2 style=\"font-size:18px\"><u>Transcript</u></h2>" + '\n\n' + transcript + '\n\n\n' + "<h2 style=\"font-size:18px\"><u>Summary</u></h2>" + '\n\n' + summary + '\n\n\n' + "<h2 style=\"font-size:18px\"><u>Blog Article</u></h2>" + '\n\n' + blog + '\n\n\n\n'
-
-    # Markdown to HTML
-    html_text = markdown2.markdown(story)
+    story = f"<h1 align='center' style=\"font-size:30px\" >{title}</h1>" + '\n\n\n\n' + "<h2 style=\"font-size:25px\">Transcript</h2>" + f"<p style=\"font-size:16px\" >{transcript}</p>" + '\n\n\n' + "<h2 style=\"font-size:25px\">Summary</h2>" + f"<div style=\"font-size:16px\" >{markdown2.markdown(summary)}</div>" + '\n\n\n' + "<h2 style=\"font-size:25px\">Blog Article</h2>" + f"<div style=\"font-size:16px\" >{markdown2.markdown(blog)}</div>" + '\n\n\n\n'
 
     # Create a BytesIO buffer to hold the PDF
     buffer = BytesIO()
 
     # Convert HTML to PDF using xhtml2pdf
-    pisa_status = pisa.CreatePDF(html_text, dest=buffer)
+    pisa_status = pisa.CreatePDF(story, dest=buffer)
 
     # Get PDF data from buffer
     pdf = buffer.getvalue()
@@ -295,14 +293,26 @@ def download_chat_pdf(request,video_id):
 
     return response
 
+# convert markdown to plain text
+def strip_markdown(text):
+    # Convert markdown to HTML
+    html = markdown2.markdown(text)
+    # Use BeautifulSoup to parse the HTML and extract plain text
+    soup = BeautifulSoup(html, 'html.parser')
+    plain_text = soup.get_text(separator=' ', strip=True)
+    return plain_text
 # download summary audio
 def generate_audio(request, video_id):
     video = VideoDetail.objects.get(id=video_id)
     title = video.title
     summary = video.summary
+
+    # Convert markdown summary to plain text
+    summary_text = strip_markdown(summary)
+    print(summary_text)
     audio_file_path = f"{settings.MEDIA_ROOT}/summary_audio/{title}_summary.mp3"
     VOICES = ['en-US-GuyNeural']
-    TEXT = summary
+    TEXT = summary_text
     VOICE = VOICES[0]
     OUTPUT_FILE = audio_file_path
 

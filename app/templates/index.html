@@ -34,7 +34,7 @@
             {% csrf_token %}
             <div id="link-input-container" >
                 <div class="flex justify-evenly gap-2 mb-5">
-                    <input name="links" id="link-input" class="border border-2 border-black rounded-md grow pl-2" type="url" placeholder="Enter the youtube link..." required>
+                    <input name="links" id="link-input" class="border border-2 border-black rounded-md grow pl-2" type="url" placeholder="Enter the Youtube link..." required>
                     <button type="button" id="add-input" class="p-2 rounded-md bg-blue-500 text-white font-bold">Add</button>
                 </div>
             </div>
@@ -44,6 +44,7 @@
         </form>
     </div>
 {% endblock %}
+
 {% block script %}
     <script src="{% static 'index.js' %}"></script>
 {% endblock %}

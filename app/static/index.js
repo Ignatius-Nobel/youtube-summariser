@@ -13,10 +13,10 @@ addButton.addEventListener('click',() => {
     
         // Create a new input field
         const newInput = document.createElement('input');
-        newInput.type = 'text';
+        newInput.type = 'url';
         newInput.name = 'links';
         newInput.placeholder = 'Enter another YouTube link...';
-        newInput.className = 'border border-2 border-black rounded-md grow';
+        newInput.className = 'border border-2 border-black rounded-md grow pl-2';
         newInput.setAttribute('required','required')
 
         // Create a remove button
