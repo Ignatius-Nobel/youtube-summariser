@@ -250,7 +250,7 @@ def user_logout(request):
     return redirect('home')
 # display saved content
 def saved_content(request):
-    generated_content = GeneratedContent.objects.filter(user=request.user)
+    generated_content = GeneratedContent.objects.filter(user=request.user).order_by('-created_at')
     
     # Pagination setup
     paginator = Paginator(generated_content, 5)  # Show 5 contents per page
