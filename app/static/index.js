@@ -40,3 +40,60 @@ addButton.addEventListener('click',() => {
 linkInput.addEventListener('input', () => {
     linkErrorMessage.style.display = "none"
 })
+
+// progress bar
+
+    window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+        // If the page was restored from the cache (indicating a back button was used), refresh the page
+        window.location.reload();
+    }
+});
+
+    const progressBar = document.getElementById('progress-bar');
+    const progressPercent = document.getElementById('progress-percent');
+    const linkForm = document.getElementById('link-form');
+    const progressContainer = document.getElementById('progress-container');
+    let intervalId
+    let isFormSubmitted = false;
+    function updateProgress() {
+        fetch('/get-progress/')
+            .then(response => response.json())
+            .then(data => {
+                const progress = data.progress;
+                console.log(progress)
+                progressBar.style.width = `${progress}%`;
+                progressPercent.innerText = `${progress}%`;
+
+                if (progress >= 100) {
+                    // clearInterval(intervalId);
+                    console.log('Processing complete!');
+                    progressContainer.classList.add("hidden")
+                    clearInterval(intervalId)
+                }
+            })
+            .catch(error => console.error('Error fetching progress:', error));
+    }
+    
+    linkForm.addEventListener('submit', (event) => {
+    if (!isFormSubmitted) {
+        isFormSubmitted = true; // Set the flag to true when the form is intentionally submitted
+        
+        event.preventDefault(); // Prevent the default form submission
+
+        // Reset progress bar to 0% and make it visible
+        progressBar.style.width = '0%';
+        progressPercent.innerText = '0%';
+        progressContainer.classList.remove("hidden");
+
+        // Call updateProgress and start polling every second
+        updateProgress();
+        if (intervalId !== null) {
+            clearInterval(intervalId); // Clear any existing interval
+        }
+        intervalId = setInterval(updateProgress, 1000); // Start a new interval
+
+        linkForm.submit(); // Proceed with form submission after setting up the progress tracking
+    }
+    isFormSubmitted = false;
+});

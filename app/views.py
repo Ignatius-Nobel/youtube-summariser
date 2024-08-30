@@ -11,7 +11,7 @@ import yt_dlp as youtube_dl
 from groq import Groq
 from dotenv import load_dotenv
 from openai import OpenAI
-from django.http import HttpResponse,StreamingHttpResponse,FileResponse,Http404
+from django.http import HttpResponse,FileResponse,Http404,JsonResponse
 from .models import VideoDetail
 import markdown2
 from io import BytesIO
@@ -20,11 +20,11 @@ import asyncio
 import edge_tts
 from django.core.paginator import Paginator
 from bs4 import BeautifulSoup
+from django.core.cache import cache
 
 load_dotenv()
 groq_api = os.getenv('GROQ_API_KEY')
 openai_api = os.getenv('OPENAI_API_KEY')
-
 links = []
 # Home page
 @login_required
@@ -39,37 +39,53 @@ def get_result(request):
             links = request.POST.getlist('links')
             content_title = get_details(links[0])[0]
             generated_content = GeneratedContent.objects.create(
-                user = logged_user,
+                user=logged_user,
                 name=content_title
             )
             generated_content.save()
+            rate = len(links) * 4
+            percent = 0
             for link in links:
                 title, author, length, pub_date = get_details(link)
+                percent += 100 / rate
+                get_progress(request, round(percent))
                 transcript = get_transcription(link)
-                print(transcript)
+                percent += 100 / rate
+                get_progress(request, round(percent))
                 summary = generate_summary(transcript)
-                print(summary)
+                percent += 100 / rate
+                get_progress(request, round(percent))
                 blog = generate_blog(transcript)
-                print(blog)
+                percent += 100 / rate
+                get_progress(request, round(percent))
                 video_details = VideoDetail.objects.create(
                     generated_content=generated_content,
                     title=title,
                     author=author,
                     length=length,
                     publish_date=pub_date,
-                    youtube_link = link,
-                    transcript = transcript,
-                    summary = summary,
-                    blog = blog,
+                    youtube_link=link,
+                    transcript=transcript,
+                    summary=summary,
+                    blog=blog,
                 )
                 video_details.save()
-
+            get_progress(request, 0)
             # Redirect to the result page after processing
-            return redirect('result_page',generated_content.id)
+            return redirect('result_page', generated_content.id)
         except Exception as e:
             messages.error(request, 'Please enter a valid link!!!')
             print(e)
             return redirect('home')
+
+
+def get_progress(request, progress_value):
+    cache.set('progress_key', progress_value, timeout=None)  # Store progress value in cache
+
+def get_current_progress(request):
+    progress = cache.get('progress_key', 0)  # Retrieve progress value from cache
+    return JsonResponse({'progress': progress})
+
 
 # result page
 def result_page(request,content_id):
