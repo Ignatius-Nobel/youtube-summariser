@@ -21,6 +21,7 @@ import edge_tts
 from django.core.paginator import Paginator
 from bs4 import BeautifulSoup
 from django.core.cache import cache
+import time
 
 load_dotenv()
 groq_api = os.getenv('GROQ_API_KEY')
@@ -43,7 +44,7 @@ def get_result(request):
                 name=content_title
             )
             generated_content.save()
-            rate = len(links) * 4
+            rate = len(links) * 3
             percent = 0
             for link in links:
                 title, author, length, pub_date = get_details(link)
@@ -55,9 +56,6 @@ def get_result(request):
                 summary = generate_summary(transcript)
                 percent += 100 / rate
                 get_progress(request, round(percent))
-                blog = generate_blog(transcript)
-                percent += 100 / rate
-                get_progress(request, round(percent))
                 video_details = VideoDetail.objects.create(
                     generated_content=generated_content,
                     title=title,
@@ -67,7 +65,6 @@ def get_result(request):
                     youtube_link=link,
                     transcript=transcript,
                     summary=summary,
-                    blog=blog,
                 )
                 video_details.save()
             get_progress(request, 0)
@@ -190,16 +187,20 @@ def generate_summary(transcription):
 
 # Generate blog
 
-def generate_blog(transcription):
+def generate_blog(request,video_id):
+        print(video_id)
+        video = VideoDetail.objects.get(id=video_id)
+        transcription = video.transcript
+        print(transcription)
         client = OpenAI(api_key=openai_api)
-        prompt = f"Based on the following transcript from a YouTube video, write a comprehensive blog article. Make it look like a proper blog article and not like a YouTube video transcript:\n\n{transcription}\n\nArticle:"
+        prompt = f"Based on the following transcript from a YouTube video, write a comprehensive blog article.Use github markdown for output. Make it look like a proper blog article and not like a YouTube video transcript:\n\n{transcription}\n\nArticle:"
         response = client.chat.completions.create(
         model="gpt-4o-mini",  
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": prompt}
         ],
-        temperature=1,
+        temperature=0.7,
         max_tokens=1000,
         top_p=1,
         frequency_penalty=0,
@@ -207,7 +208,35 @@ def generate_blog(transcription):
         response_format={"type": "text"}
         )
         generated_blog = response.choices[0].message.content.strip()
-        return generated_blog
+        video.blog = generated_blog
+        video.save()
+        return redirect('result_page',video_id+1)
+
+# generate blog from saved section
+def saved_generate_blog(request,video_id):
+        print(video_id)
+        video = VideoDetail.objects.get(id=video_id)
+        transcription = video.transcript
+        print(transcription)
+        client = OpenAI(api_key=openai_api)
+        prompt = f"Based on the following transcript from a YouTube video, write a comprehensive blog article.Use github markdown for output. Make it look like a proper blog article and not like a YouTube video transcript:\n\n{transcription}\n\nArticle:"
+        response = client.chat.completions.create(
+        model="gpt-4o-mini",  
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.7,
+        max_tokens=1000,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0,
+        response_format={"type": "text"}
+        )
+        generated_blog = response.choices[0].message.content.strip()
+        video.blog = generated_blog
+        video.save()
+        return redirect('saved-detail',video_id)
 
 # Download audio
 def download_audio(link):
@@ -291,7 +320,10 @@ def download_chat_pdf(request,video_id):
 
     # Data to be included in the PDF
     story = ""
-    story = f"<h1 align='center' style=\"font-size:30px\" >{title}</h1>" + '\n\n\n\n' + "<h2 style=\"font-size:25px\">Transcript</h2>" + f"<p style=\"font-size:16px\" >{transcript}</p>" + '\n\n\n' + "<h2 style=\"font-size:25px\">Summary</h2>" + f"<div style=\"font-size:16px\" >{markdown2.markdown(summary)}</div>" + '\n\n\n' + "<h2 style=\"font-size:25px\">Blog Article</h2>" + f"<div style=\"font-size:16px\" >{markdown2.markdown(blog)}</div>" + '\n\n\n\n'
+    if blog == "null":
+        story = f"<h1 align='center' style=\"font-size:30px\" >{title}</h1>" + '\n\n\n\n' + "<h2 style=\"font-size:25px\">Transcript</h2>" + f"<p style=\"font-size:16px\" >{transcript}</p>" + '\n\n\n' + "<h2 style=\"font-size:25px\">Summary</h2>" + f"<div style=\"font-size:16px\" >{markdown2.markdown(summary)}</div>" + '\n\n\n'
+    else:
+        story = f"<h1 align='center' style=\"font-size:30px\" >{title}</h1>" + '\n\n\n\n' + "<h2 style=\"font-size:25px\">Transcript</h2>" + f"<p style=\"font-size:16px\" >{transcript}</p>" + '\n\n\n' + "<h2 style=\"font-size:25px\">Summary</h2>" + f"<div style=\"font-size:16px\" >{markdown2.markdown(summary)}</div>" + '\n\n\n' + "<h2 style=\"font-size:25px\">Blog Article</h2>" + f"<div style=\"font-size:16px\" >{markdown2.markdown(blog)}</div>" + '\n\n\n\n'
 
     # Create a BytesIO buffer to hold the PDF
     buffer = BytesIO()

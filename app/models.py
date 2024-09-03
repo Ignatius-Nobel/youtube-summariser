@@ -18,7 +18,7 @@ class VideoDetail(models.Model):
     author = models.CharField(max_length=100)
     length = models.IntegerField()
     youtube_link = models.URLField()
-    blog = models.TextField()
+    blog = models.TextField(default="null")
     transcript = models.TextField()
     summary = models.TextField()
     publish_date = models.DateField("Published Date")

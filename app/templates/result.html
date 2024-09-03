@@ -167,9 +167,18 @@
             </div>
           </div>
           
+          <hr class="h-2 w-full">
+          {% if video.blog == "null" %}
+          <div class="border min-h-32 flex flex-col justify-center items-center gap-4 rounded-lg">
+            <p class="font-semibold">Click to generate blog content...</p>
+            {% block generate %}
+            <a href="{% url 'get-blog' video.id %}" class="border bg-green-500 rounded-lg p-2 text-white font-semibold">Generate Blog</a>
+            {% endblock %}
+          </div>
+          {% else %}
+            <github-md>{{ video.blog }}</github-md> 
+          {% endif %}
 
-            <hr class="h-2 w-full">
-            <github-md>{{video.blog}}</github-md>
           </div>
           <!-- Video Details -->
           <div
