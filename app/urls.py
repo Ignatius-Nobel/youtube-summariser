@@ -15,6 +15,6 @@ urlpatterns = [
     path('transcript-audio/<int:video_id>/', views.transcript_audio, name='transcript-audio'),
     path('remove-content/<int:pk>/', views.remove_content,name="remove-content"),
     path('get-progress/', views.get_current_progress, name='get_current_progress'),
-    path('get-blog/<int:video_id>/', views.generate_blog, name='get-blog'),
-    path('saved-blog/<int:video_id>/', views.saved_generate_blog, name='saved-blog'),
+    path('get-blog/<int:content_id>/blog-<int:video_id>', views.generate_blog, name='get-blog'),
+    path('saved-blog/<int:content_id>/blog-<int:video_id>', views.saved_generate_blog, name='saved-blog'),
 ]

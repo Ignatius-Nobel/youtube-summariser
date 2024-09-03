@@ -152,6 +152,8 @@
           >
           <div class="flex justify-between items-center">
             <p class="text-2xl font-bold my-4">Blog Article</p>
+            {% if video.blog == "null" %}
+            {% else %}
             <div class="flex items-center gap-4">
               <ion-icon 
                 id="copy-blog-tab-{{video.id}}" 
@@ -163,6 +165,7 @@
               ></ion-icon>
               <span id="copied-message-blog-tab-{{video.id}}" class="text-green-500 hidden">Copied!</span>
             </div>
+            {% endif %}
           </div>
           
           <hr class="h-2 w-full">
@@ -170,7 +173,7 @@
           <div class="border min-h-32 flex flex-col justify-center items-center gap-4 rounded-lg">
             <p class="font-semibold">Click to generate blog content...</p>
             {% block generate %}
-            <a href="{% url 'get-blog' video.id %}" class="border bg-green-500 rounded-lg p-2 text-white font-semibold">Generate Blog</a>
+            <a href="{% url 'get-blog' content_id=content.id video_id=video.id %}" class="border bg-green-500 rounded-lg p-2 text-white font-semibold">Generate Blog</a>
             {% endblock %}
           </div>
           {% else %}

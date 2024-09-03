@@ -175,7 +175,7 @@ def generate_summary(transcription):
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": prompt1}
         ],
-        temperature=1,
+        temperature=0.7,
         max_tokens=1000,
         top_p=1,
         frequency_penalty=0,
@@ -187,13 +187,42 @@ def generate_summary(transcription):
 
 # Generate blog
 
-def generate_blog(request,video_id):
+def generate_blog(request,content_id,video_id):
         print(video_id)
-        video = VideoDetail.objects.get(id=video_id)
+        content = GeneratedContent.objects.get(id=content_id)
+        video = content.video_details.get(id=video_id,generated_content=content)
+        title = video.title
+        author = video.author
         transcription = video.transcript
         print(transcription)
         client = OpenAI(api_key=openai_api)
-        prompt = f"Based on the following transcript from a YouTube video, write a comprehensive blog article.Use github markdown for output. Make it look like a proper blog article and not like a YouTube video transcript:\n\n{transcription}\n\nArticle:"
+        prompt = f"""You are tasked with creating an engaging blog article based on a YouTube video transcript. Your goal is to explain the key points of the video in a clear, concise, and interesting manner. Follow these steps to complete the task:
+ 
+        1. You will be provided with the following information:
+        <video_title>{title}</video_title>
+        <video_creator>{author}</video_creator>
+        
+        2. Here is the transcript of the YouTube video:
+        <youtube_transcript>
+        {transcription}
+        </youtube_transcript>
+
+        3. Analyze the transcript:
+        a. Identify the main topic or theme of the video.
+        b. List the key points or main ideas presented in the video.
+        c. Note any important examples, statistics, or anecdotes that support the main ideas.
+        d. Identify any unique insights or perspectives offered by the video creator.
+
+        4. Create an engaging blog article:
+        a. Write a catchy title that summarizes the main topic of the video.
+        b. Start with an attention-grabbing introduction that sets the context for the video's content.
+        c. Organize the key points into logical sections or paragraphs.
+        d. Expand on each key point, providing clear explanations and incorporating relevant examples or data from the video.
+        e. Use transitional phrases to ensure smooth flow between paragraphs and ideas.
+        f. Include relevant quotes from the video creator, if applicable, to add authenticity and authority to the article.
+
+        Remember to maintain a conversational and engaging tone throughout the article. Your goal is to make the content accessible and interesting to a wide audience while accurately representing the key points from the YouTube video.
+        """
         response = client.chat.completions.create(
         model="gpt-4o-mini",  
         messages=[
@@ -210,16 +239,45 @@ def generate_blog(request,video_id):
         generated_blog = response.choices[0].message.content.strip()
         video.blog = generated_blog
         video.save()
-        return redirect('result_page',video_id)
+        return redirect('result_page',content_id)
 
 # generate blog from saved section
-def saved_generate_blog(request,video_id):
+def saved_generate_blog(request,content_id,video_id):
         print(video_id)
-        video = VideoDetail.objects.get(id=video_id)
+        content = GeneratedContent.objects.get(id=content_id)
+        video = content.video_details.get(id=video_id,generated_content=content)
+        title = video.title
+        author = video.author
         transcription = video.transcript
         print(transcription)
         client = OpenAI(api_key=openai_api)
-        prompt = f"Based on the following transcript from a YouTube video, write a comprehensive blog article.Use github markdown for output. Make it look like a proper blog article and not like a YouTube video transcript:\n\n{transcription}\n\nArticle:"
+        prompt = f"""You are tasked with creating an engaging blog article based on a YouTube video transcript. Your goal is to explain the key points of the video in a clear, concise, and interesting manner. Follow these steps to complete the task:
+ 
+        1. You will be provided with the following information:
+        <video_title>{title}</video_title>
+        <video_creator>{author}</video_creator>
+        
+        2. Here is the transcript of the YouTube video:
+        <youtube_transcript>
+        {transcription}
+        </youtube_transcript>
+
+        3. Analyze the transcript:
+        a. Identify the main topic or theme of the video.
+        b. List the key points or main ideas presented in the video.
+        c. Note any important examples, statistics, or anecdotes that support the main ideas.
+        d. Identify any unique insights or perspectives offered by the video creator.
+
+        4. Create an engaging blog article:
+        a. Write a catchy title that summarizes the main topic of the video.
+        b. Start with an attention-grabbing introduction that sets the context for the video's content.
+        c. Organize the key points into logical sections or paragraphs.
+        d. Expand on each key point, providing clear explanations and incorporating relevant examples or data from the video.
+        e. Use transitional phrases to ensure smooth flow between paragraphs and ideas.
+        f. Include relevant quotes from the video creator, if applicable, to add authenticity and authority to the article.
+
+        Remember to maintain a conversational and engaging tone throughout the article. Your goal is to make the content accessible and interesting to a wide audience while accurately representing the key points from the YouTube video.
+        """
         response = client.chat.completions.create(
         model="gpt-4o-mini",  
         messages=[
@@ -236,7 +294,7 @@ def saved_generate_blog(request,video_id):
         generated_blog = response.choices[0].message.content.strip()
         video.blog = generated_blog
         video.save()
-        return redirect('saved-detail',video_id)
+        return redirect('saved-detail',content_id)
 
 # Download audio
 def download_audio(link):
@@ -308,7 +366,7 @@ def saved_content(request):
 def saved_detail(request,content_id):
     generated_content = GeneratedContent.objects.get(id=content_id)
     video_detail = generated_content.video_details.all()
-    return render(request,"saved_detail.html",{'video_detail':video_detail})
+    return render(request,"saved_detail.html",{'content':generated_content,'video_detail':video_detail})
 
 # Download PDF
 def download_chat_pdf(request,video_id):
