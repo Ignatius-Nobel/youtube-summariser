@@ -61,15 +61,6 @@
         <!-- Transcript, Summary and Blog -->
           <div class="flex flex-start w-fit space-x-2 text-white font-semibold">
             <button
-              id="transcript-button-{{video.id}}"
-              type="button"
-              class="border-b-0 rounded-t-lg py-2 px-6 bg-blue-500"
-              onclick="showContent('{{video.id}}', 'transcript-tab');"
-            >
-              Transcript
-            </button>
-
-            <button
               id="summary-button-{{video.id}}"
               type="button"
               class="py-2 px-6 rounded-t-lg bg-blue-500"
@@ -77,6 +68,15 @@
             >
               Summary
             </button>
+
+            <button
+            id="transcript-button-{{video.id}}"
+            type="button"
+            class="border-b-0 rounded-t-lg py-2 px-6 bg-blue-500"
+            onclick="showContent('{{video.id}}', 'transcript-tab');"
+          >
+            Transcript
+          </button>
 
             <button
               id="blog-button-{{video.id}}"
@@ -99,7 +99,7 @@
           <!-- Transcript content -->
           <div
             id="transcript-tab-{{video.id}}"
-            class="border p-8 rounded-lg rounded-tl-none shadow-lg bg-white"
+            class="hidden border p-8 rounded-lg rounded-tl-none shadow-lg bg-white"
           >
             <div class="flex justify-between items-center">
               <p class="text-2xl font-bold my-4">Transcript</p>
@@ -120,12 +120,10 @@
             </div>
             <hr class="h-2 w-full">
             <github-md>{{ video.transcript }}</github-md>             
-
-
           </div>
           <!-- Summary content -->
           <div
-            class="hidden border p-8 rounded-lg rounded-tl-none shadow-lg bg-white"
+            class="border p-8 rounded-lg rounded-tl-none shadow-lg bg-white"
             id="summary-tab-{{video.id}}"
           >
           <div class="flex justify-between items-center">

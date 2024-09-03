@@ -210,7 +210,7 @@ def generate_blog(request,video_id):
         generated_blog = response.choices[0].message.content.strip()
         video.blog = generated_blog
         video.save()
-        return redirect('result_page',video_id+1)
+        return redirect('result_page',video_id)
 
 # generate blog from saved section
 def saved_generate_blog(request,video_id):
